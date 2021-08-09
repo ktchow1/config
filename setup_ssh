@@ -1,0 +1,101 @@
+ssh folder for root : /root/.ssh
+ssh folder for user : /home/usrA/.ssh (or equivalently, ~/.ssh)
+
+
+
+###########################################################
+### Given account : root in server0, ip = 192.168.8.100 ###
+###########################################################
+>> cd /root
+>> mkdir .ssh
+
+
+
+###########################################################
+### Given account : usrA in server1, ip = 192.168.8.101 ###
+###########################################################
+>> cd /home/usrA (or equivalently, cd ~)
+>> mkdir .ssh
+
+
+
+###########################
+### In my local machine ###
+###########################
+>> cd ~
+>> mkdir .ssh
+>> ssh-keygen -t rsa -b 4096 -C "ssh to server0 from my local machine"
+enter filename : server0
+>> ssh-keygen -t rsa -b 4096 -C "ssh to server1 from my local machine"
+enter filename : server1
+>> ll
+server0                           <--- filename for key
+server0.pub                       <--- filename for key
+server1
+server1.pub
+
+>> nvim config
+Host my_service0                  <--- hostname
+    HostName 192.168.8.100        <--- host ip
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/server0   <--- filename for key
+    ServerAliveInterval 15
+    ServerAliveCountMax 10
+   
+Host my_service1                  <--- hostname
+    HostName 192.168.8.101        <--- host ip
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/server1   <--- filename for key
+    ServerAliveInterval 15
+    ServerAliveCountMax 10
+
+>> scp server0.pub root@192.168.8.100:/root/.ssh
+>> scp server1.pub usrA@192.168.8.101:/home/usrA/.ssh
+
+
+
+#############################
+### Login server0 as root ###
+#############################
+>> ssh root@192.168.8.100
+>> cd /root/.ssh
+>> cat server0.pub >> authorized_keys  (it append)
+>> cat server0.pub >  authorized_keys  (it overwrites, don't do this)
+>> rm  server0.pub
+
+
+
+#############################
+### Login server1 as usrA ###
+#############################
+>> ssh usrA@192.168.8.101
+>> cd /home/usrA/.ssh
+>> cat server1.pub >> authorized_keys
+>> rm  server1.pub
+
+
+
+###################################
+### Go back to my local machine ###
+###################################
+>> ssh root@my_service0           <--- hostname
+>> ssh root@192.168.8.100         <--- host ip
+>> ssh usrA@my_service1           <--- hostname
+>> ssh usrA@192.168.8.101         <--- host ip
+
+
+
+######################################
+### There are two login approaches ###
+######################################
+ssh and scp login is authenticated by :
+1. password
+2. ssh public key & ssh private key protocol (exhaustive trial with all keys in ssh folder)
+
+Approach 2 may fail when there are many keys. In this case, please apply forced-to-use-password option by :
+
+>> ssh -o PreferredAuthentications=password root@my_service0
+>> ssh -o PreferredAuthentications=password root@192.168.8.100
+>> scp -o PreferredAuthentications=password -r ~/dev/YLibrary root@my_service0:/root/dev
+>> scp -o PreferredAuthentications=password -r ~/dev/YLibrary root@192.168.8.100:/root/dev
+

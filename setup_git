@@ -1,0 +1,44 @@
+##################################
+### Suppose we have git server ###
+##################################
+git@10.250.8.100:dick/repo.git
+
+
+
+########################
+### Generate ssh-key ###
+########################
+>> ssh-keygen -t rsa -b 4096 -C "gitlab server from machine 001"
+enter filename : gitlab_from_001           <--- filename for key
+
+>> ll
+~/.ssh/gitlab_from_001                     <--- filename for key
+~/.ssh/gitlab_from_001.pub                 <--- filename for key
+
+
+
+##########################################
+### Register ssh-key to  ~/.ssh/config ###
+##########################################
+Host my_gitlab                             <--- hostname
+    HostName 10.250.8.100                  <--- host ip
+    PreferredAuthentications publickey
+    IdentityFile ~/.ssh/gitlab_from_001    <--- filename for key
+    ServerAliveInterval 15
+    ServerAliveCountMax 10
+
+>> ssh dick@my_gitlab                      <--- hostname
+>> ssh dick@10.250.8.100                   <--- host ip
+
+
+
+#########################################
+### Add the following in ~/.gitconfig ###
+#########################################
+[user]
+    name = Peter Chan
+    email = peter.chan@google.com
+[core]
+editor = nvim
+[merge]
+tool = meld

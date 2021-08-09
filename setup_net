@@ -1,0 +1,14 @@
+How to check if a port is listening?
+
+Method 1 : check port status from server machine
+>> netstat -tupnl
+
+Method 2 : check port status fro client machine
+>> nc -v -n 10.250.8.100 2222
+
+Method 3 : perform TCP chat 
+>> nc -l -p 5000             <--- run in server
+>> nc 10.250.8.100 2222      <--- run in client
+
+
+
